@@ -22,7 +22,7 @@ Sur Zephyr, un numéro de priorité plus petit signifie une priorité plus haute
 | Tâche | Période | Priorité | Rôle |
 |---|---|---|---|
 | `tacheEcoute` | 75 ms | 5 | Lit la liaison série, reconstitue les lignes, décode la réponse des télémètres (id `60103`, trois valeurs hexadécimales : gauche, centre, droite) et moyenne 5 mesures |
-| `alerte_sonore` | 200 ms | 5 | Si une distance moyenne est < 20 et que le robot avance : alerte sonore ; l'arrête quand l'obstacle disparaît |
+| `alerte_sonore` | 200 ms | 5 | Si une distance moyenne est < 20 cm et que le robot avance : envoie `*K2;*B100;` (alerte d'obstacle, le robot s'arrête) ; envoie `*B0;` quand l'obstacle disparaît |
 | `tachePing` | 100 ms | 6 | Demande les distances (trame `00060103`) ; envoie `*L1;` au démarrage après 3 s |
 | `update_volant` | 100 ms | 7 | Envoie `*V<angle>;` quand l'angle change |
 | `cligno_gauche` | 500 ms | 7 | Fait clignoter à gauche si braquage < −19 |
@@ -33,4 +33,7 @@ Un mutex (`bluetooth_mutex`) sérialise les écritures sur la liaison Bluetooth 
 La distance est rafraîchie environ toutes les 0,5 s (5 mesures moyennées à 100 ms d'intervalle) : c'est le compromis entre stabilité de la mesure et réactivité de l'alerte.
 
 ## Choix de conception et alternatives écartées
-À COMPLÉTER : pourquoi une carte UNO Q plutôt qu'un PC, pourquoi Bluetooth classique (HC-05) plutôt que BLE, pourquoi la caméra du smartphone, pourquoi ces gestes.
+- **Bluetooth classique via un HC-05** : le module Bluetooth natif de l'UNO Q fonctionne en BLE, incompatible avec le HC-05 du ROMI. Un module HC-05 supplémentaire, configuré en **maître** et piloté en série par la carte, fait le lien.
+- **Traitement local (Edge AI)** : la détection s'exécute sur la carte, ce qui limite la consommation et les ressources externes.
+- **Trois rôles de tâches** (documentation du projet) : sécurité (haute priorité : lecture du bus CAN et télémètres), pilotage (priorité moyenne : traduction des ordres en commandes du robot), périphériques (basse priorité : clignotants et signaux sonores).
+- **Quatre gestes statiques**, un par commande (avancer, freiner, braquer à gauche, braquer à droite), faciles à distinguer pour un modèle de détection d'objets.

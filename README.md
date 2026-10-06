@@ -2,10 +2,7 @@
 
 > Un robot mobile **ROMI** piloté par gestes : la caméra d'un smartphone envoie son flux à une carte **Arduino UNO Q** qui exécute un modèle de détection **en local** ; les gestes reconnus sont traduits en commandes envoyées au robot en **Bluetooth classique (HC-05)**, par un firmware **Zephyr RTOS** multitâche.
 
-**Statut :** prototype fonctionnel · **Cadre :** Projet 2A 2025-2026, ENSISA (Université de Haute-Alsace), encadré par Didier BRESCH, réalisé en binôme avec Orphée DJIKPE · **Vidéo :** À COMPLÉTER (lien ou GIF)
-
-<!-- Mets ici un GIF (< 10 Mo) ou un lien vidéo : c'est la première chose qu'un recruteur regarde. -->
-![Démonstration](docs/images/demo.gif)
+**Statut :** prototype fonctionnel · **Cadre :** Projet 2A 2025-2026, ENSISA (Université de Haute-Alsace), encadré par Didier BRESCH, réalisé en binôme avec Orphée DJIKPE · **Vidéo :** [Voir la démonstration](https://1drv.ms/f/c/f9c8d123e6cbe736/IgAnTCKELjs4Sq8H9bSpwonzAW95COt1dy-BWJ-6Cf7Aa8U?e=BeVqbb)
 
 ## Ce que fait le projet
 
@@ -13,14 +10,14 @@ Reconnaissance de **gestes statiques de la main** (4 classes) :
 
 | Étiquette du modèle | Geste | Commande | Effet sur le robot |
 |---|---|---|---|
-| `Avancer` | un doigt levé (index) | `AV` | le robot avance |
+| `Avancer` | un doigt levé | `AV` | le robot avance |
 | `Freiner` | poing fermé | `FR` | le robot s'arrête |
 | `Volant Droit` | main ouverte | `VD` | braquage +10 (max +100), clignotant droit au-delà de +19 |
-| `Volant Gauche` | deux doigts levés | `VG` | braquage −10 (min −100), clignotant gauche au-delà de −19 |
+| `Volant Gauche` | signe V (deux doigts) | `VG` | braquage −10 (min −100), clignotant gauche au-delà de −19 |
 
 Objectifs du projet (poster) : prise en main de l'Arduino UNO Q et d'App Lab, test de ses performances (ports, consommation, puissance de calcul, IA) et pilotage du ROMI par Bluetooth avec une caméra connectée et une IA de reconnaissance gestuelle. Approche « low-tech » : traitement local, matériel simple et réutilisable, carte à environ 45 €.
 
-En parallèle, le firmware interroge les télémètres du robot (10 fois par seconde) et déclenche une **alerte sonore** si un obstacle est à moins de 20 (unité du capteur) pendant que le robot avance. Une interface web affiche le flux, les détections récentes, le seuil de confiance et la position du volant.
+En parallèle, le firmware interroge les télémètres du robot (10 fois par seconde) et déclenche l'alerte d'obstacle du robot (commande `*K2;*B100;`, arrêt du ROMI) dès qu'un obstacle est détecté à moins de **20 cm** pendant qu'il avance. Une interface web affiche le flux, les détections récentes, le seuil de confiance et la position du volant.
 
 ## Architecture
 
@@ -51,15 +48,11 @@ Ce projet a été réalisé **en binôme** (avec Orphée DJIKPE). Ce dépôt par
 
 Détail des attributions et licences tierces : [`NOTICE.md`](NOTICE.md).
 
-## Résultats
+## Démonstration
 
-| Mesure | Valeur |
-|---|---|
-| Précision du modèle (jeu de test) | À COMPLÉTER |
-| Latence geste → réaction du robot | À COMPLÉTER |
-| Fréquence de détection | À COMPLÉTER |
+La [vidéo de démonstration](https://1drv.ms/f/c/f9c8d123e6cbe736/IgAnTCKELjs4Sq8H9bSpwonzAW95COt1dy-BWJ-6Cf7Aa8U?e=BeVqbb) montre le système en fonctionnement : gestes devant la caméra du smartphone, détection sur la carte UNO Q et réaction du robot ROMI sur la piste d'essai.
 
-Méthode et analyse : [`docs/results.md`](docs/results.md).
+Jeu de données, modèle et comportement observé : [`docs/results.md`](docs/results.md).
 
 ## Structure du dépôt
 
@@ -69,8 +62,7 @@ Méthode et analyse : [`docs/results.md`](docs/results.md).
 ├── python/main.py      Côté Linux : détection → commandes
 ├── sketch/             Côté microcontrôleur : firmware Zephyr (C++)
 ├── assets/             Interface web (HTML/JS/CSS)
-├── docs/               Architecture, protocole, installation, résultats
-├── scripts/            Outils (vérification avant publication)
+├── docs/               Architecture, protocole, installation, prise en main de l'UNO Q, résultats
 └── .github/workflows/  Intégration continue
 ```
 
@@ -82,13 +74,15 @@ Voir [`docs/setup.md`](docs/setup.md). En bref : importer le dossier dans Arduin
 
 ## Difficultés rencontrées
 
-À COMPLÉTER : 3 ou 4 points concrets (latence, fiabilité de la détection, appairage Bluetooth, etc.).
+- **Bluetooth** : le Bluetooth natif de l'UNO Q est en basse consommation (BLE), alors que le module HC-05 du ROMI est en Bluetooth classique. Il a fallu ajouter un module HC-05 configuré en maître et commandé par liaison série.
+- **Connexion aléatoire** si plusieurs ROMI sont allumés en même temps : un seul robot allumé et non connecté pendant l'appairage.
+- **Latence vidéo** avec un Wi-Fi instable : un routeur 5 GHz règle le problème.
+- **Mises à jour** : après une mise à jour, les formes détectées ne correspondaient plus à l'application ; il a fallu reflasher la carte (suppression des données) puis refaire l'installation sans mettre à jour le firmware.
+- **Port série** : selon la version d'App Lab, il faut utiliser `Serial` ou `Serial1`.
 
-## Pistes d'amélioration
+## Évolutions possibles
 
-- Arrêter automatiquement le robot en cas d'obstacle (aujourd'hui : alerte sonore seulement).
 - Protéger par mutex ou file de messages les variables partagées entre tâches (`volant`, `avancer`, distances).
-- Valider la taille de pile (1 Ko) des tâches qui utilisent `sscanf` et `sprintf`.
 - Élargir le jeu de données (30 images par geste aujourd'hui) : plus de personnes, d'éclairages et d'arrière-plans pour gagner en robustesse.
 - Extraire la logique de traduction détection → commande pour la tester sans carte.
 

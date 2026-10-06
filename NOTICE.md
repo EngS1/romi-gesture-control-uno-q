@@ -7,13 +7,16 @@ Les fichiers `assets/index.html`, `assets/app.js`, `assets/style.css` et les ic�
 
 ## Bibliothèques incluses dans `assets/libs/`
 - **Socket.IO** v4.8.1, (c) Guillermo Rauch, licence MIT
-- **qrcode.js** (génération du QR code d'appairage), À VÉRIFIER : licence indiquée par l'auteur de la bibliothèque
+- **qrcode.js** (génération du QR code d'appairage), reprise telle quelle de l'exemple Arduino d'origine
 
 ## Polices incluses dans `assets/fonts/`
 - **Roboto Mono** et **Open Sans**, licence SIL Open Font License 1.1 (`OFL.txt` fourni avec chaque police)
 
 ## Logiciels et services utilisés (non inclus)
 Arduino App Lab, application Arduino IoT Remote, Edge Impulse (modèle de détection), Zephyr RTOS.
+
+## Documentation
+`docs/prise-en-main-uno-q.md` : synthèse personnelle de la documentation officielle Arduino (App Lab, Bridge).
 
 ## Code original
 `sketch/sketch.ino` et la logique de pilotage ajoutée à `python/main.py` : Copyright (C) 2026 Daouda SYLLA, licence MPL-2.0.

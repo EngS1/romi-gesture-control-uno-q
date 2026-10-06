@@ -14,7 +14,7 @@ Les messages sont du texte ASCII envoyé par liaison série (module HC-05, 38 40
 | `00060103` | `tachePing` | Requête d'identifiant CAN `0x60103`, sans données : demande des distances |
 
 ## Réponse des télémètres
-Une ligne contenant `60103` suivie de trois valeurs hexadécimales : distances gauche, centre et droite. Une valeur à 0 est comptée comme 100 (À CONFIRMER : absence d'obstacle).
+Une ligne contenant `60103` suivie de trois valeurs hexadécimales : distances gauche, centre et droite. Une valeur à 0 est traitée comme la distance maximale (100), c'est-à-dire sans obstacle dans la portée. Le guide de dépannage du projet indique que la requête `60103 0` doit renvoyer les distances.
 
 ## Commandes internes (Python vers microcontrôleur)
 | Code | Effet |
